@@ -1,0 +1,16 @@
+com\taskmanager\dto\TaskResponse.class
+com\taskmanager\model\Task$Builder.class
+com\taskmanager\repository\TaskRepository.class
+com\taskmanager\dto\TaskRequest$Builder.class
+com\taskmanager\controller\TaskController.class
+com\taskmanager\TaskManagerApplication.class
+com\taskmanager\model\TaskStatus.class
+com\taskmanager\dto\TaskResponse$Builder.class
+com\taskmanager\exception\ErrorResponse$Builder.class
+com\taskmanager\exception\ErrorResponse.class
+com\taskmanager\dto\TaskRequest.class
+com\taskmanager\exception\GlobalExceptionHandler.class
+com\taskmanager\service\TaskService.class
+com\taskmanager\config\CorsConfig.class
+com\taskmanager\exception\TaskNotFoundException.class
+com\taskmanager\model\Task.class

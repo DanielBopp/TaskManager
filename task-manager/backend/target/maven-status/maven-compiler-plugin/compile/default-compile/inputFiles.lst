@@ -1,0 +1,12 @@
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\exception\TaskNotFoundException.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\exception\ErrorResponse.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\controller\TaskController.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\dto\TaskRequest.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\exception\GlobalExceptionHandler.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\service\TaskService.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\TaskManagerApplication.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\repository\TaskRepository.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\dto\TaskResponse.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\model\Task.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\config\CorsConfig.java
+C:\Users\Daniel.bopp\task-manager\backend\src\main\java\com\taskmanager\model\TaskStatus.java
