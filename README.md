@@ -164,11 +164,20 @@ Base URL: `http://localhost:8080/api`
 | Method | Path                     | Description              | Body / Params            |
 |--------|--------------------------|--------------------------|--------------------------|
 | GET    | `/tasks`                 | Get all tasks            | `?search=&status=&category=` |
+| GET    | `/tasks/summary`         | Get task count statistics by status | —                 |
+| GET    | `/tasks/schema`          | Get a simplified JSON Schema for tasks | —              |
+| GET    | `/tasks/help`            | Describe available API endpoints | —                      |
 | GET    | `/tasks/{id}`            | Get task by ID           | —                        |
 | POST   | `/tasks`                 | Create a new task        | `TaskRequest` JSON       |
 | PUT    | `/tasks/{id}`            | Update a task            | `TaskRequest` JSON       |
 | DELETE | `/tasks/{id}`            | Delete a task            | —                        |
 | GET    | `/tasks/categories`      | Get all categories       | —                        |
+
+`GET /tasks/summary` returns `totalTasks` and a `tasksByStatus` count for each
+status (`TODO`, `IN_PROGRESS`, `DONE`), including statuses with no tasks.
+`GET /tasks/schema` describes the `tasks` table fields, types, limits, enum
+values, and required fields using JSON Schema.
+`GET /tasks/help` returns a short JSON endpoint catalog for agents.
 
 ### Task Entity
 

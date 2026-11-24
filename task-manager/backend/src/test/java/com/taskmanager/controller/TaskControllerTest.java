@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.taskmanager.dto.TaskRequest;
 import com.taskmanager.dto.TaskResponse;
+import com.taskmanager.dto.TaskSummaryResponse;
 import com.taskmanager.exception.GlobalExceptionHandler;
 import com.taskmanager.exception.TaskNotFoundException;
 import com.taskmanager.model.TaskStatus;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -116,6 +118,46 @@ class TaskControllerTest {
                     .andExpect(status().isOk());
 
             verify(taskService).searchTasks(null, TaskStatus.TODO, null);
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/tasks/summary")
+    class GetTaskSummaryTests {
+
+        @Test
+        @DisplayName("returns task counts by status")
+        void returnsTaskSummary() throws Exception {
+            when(taskService.getTaskSummary()).thenReturn(new TaskSummaryResponse(3L, Map.of(
+                    TaskStatus.TODO, 2L,
+                    TaskStatus.IN_PROGRESS, 1L,
+                    TaskStatus.DONE, 0L)));
+
+            mockMvc.perform(get("/api/tasks/summary"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalTasks").value(3))
+                    .andExpect(jsonPath("$.tasksByStatus.TODO").value(2))
+                    .andExpect(jsonPath("$.tasksByStatus.IN_PROGRESS").value(1))
+                    .andExpect(jsonPath("$.tasksByStatus.DONE").value(0));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/tasks/help")
+    class GetApiHelpTests {
+
+        @Test
+        @DisplayName("returns a concise catalog of available endpoints")
+        void returnsEndpointCatalog() throws Exception {
+            mockMvc.perform(get("/api/tasks/help"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.description").value("Task Manager REST API. Base path: /api."))
+                    .andExpect(jsonPath("$.endpoints.length()").value(9))
+                    .andExpect(jsonPath("$.endpoints[0].method").value("GET"))
+                    .andExpect(jsonPath("$.endpoints[0].path").value("/api/tasks"))
+                    .andExpect(jsonPath("$.endpoints[4].method").value("POST"))
+                    .andExpect(jsonPath("$.endpoints[4].path").value("/api/tasks"))
+                    .andExpect(jsonPath("$.endpoints[8].path").value("/api/tasks/help"));
         }
     }
 

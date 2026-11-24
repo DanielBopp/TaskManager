@@ -3,6 +3,7 @@ package com.taskmanager.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.taskmanager.dto.TaskRequest;
+import com.taskmanager.model.Task;
 import com.taskmanager.model.TaskStatus;
 import com.taskmanager.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -158,6 +160,52 @@ class TaskIntegrationTest {
         mockMvc.perform(get("/api/tasks/categories"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("returns task counts by status from the database")
+    void returnsTaskSummary() throws Exception {
+        taskRepository.saveAll(List.of(
+                Task.builder().title("Todo 1").status(TaskStatus.TODO).build(),
+                Task.builder().title("Todo 2").status(TaskStatus.TODO).build(),
+                Task.builder().title("Done").status(TaskStatus.DONE).build()));
+
+        mockMvc.perform(get("/api/tasks/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalTasks").value(3))
+                .andExpect(jsonPath("$.tasksByStatus.TODO").value(2))
+                .andExpect(jsonPath("$.tasksByStatus.IN_PROGRESS").value(0))
+                .andExpect(jsonPath("$.tasksByStatus.DONE").value(1));
+    }
+
+    @Test
+    @DisplayName("returns zero counts when there are no tasks")
+    void returnsEmptyTaskSummary() throws Exception {
+        mockMvc.perform(get("/api/tasks/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalTasks").value(0))
+                .andExpect(jsonPath("$.tasksByStatus.TODO").value(0))
+                .andExpect(jsonPath("$.tasksByStatus.IN_PROGRESS").value(0))
+                .andExpect(jsonPath("$.tasksByStatus.DONE").value(0));
+    }
+
+    @Test
+    @DisplayName("returns JSON Schema for the tasks table")
+    void returnsTaskSchema() throws Exception {
+        mockMvc.perform(get("/api/tasks/schema"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.$schema").value("https://json-schema.org/draft/2020-12/schema"))
+                .andExpect(jsonPath("$.title").value("Task"))
+                .andExpect(jsonPath("$.type").value("object"))
+                .andExpect(jsonPath("$.properties.id.type").value("integer"))
+                .andExpect(jsonPath("$.properties.id.readOnly").value(true))
+                .andExpect(jsonPath("$.properties.title.maxLength").value(100))
+                .andExpect(jsonPath("$.properties.description.maxLength").value(500))
+                .andExpect(jsonPath("$.properties.status.enum[0]").value("TODO"))
+                .andExpect(jsonPath("$.properties.dueDate.format").value("date-time"))
+                .andExpect(jsonPath("$.properties.category.maxLength").value(100))
+                .andExpect(jsonPath("$.required[0]").value("title"))
+                .andExpect(jsonPath("$.required[1]").value("status"));
     }
 
     @Test

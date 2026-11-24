@@ -2,6 +2,8 @@ package com.taskmanager.service;
 
 import com.taskmanager.dto.TaskRequest;
 import com.taskmanager.dto.TaskResponse;
+import com.taskmanager.dto.TaskStatusCount;
+import com.taskmanager.dto.TaskSummaryResponse;
 import com.taskmanager.exception.TaskNotFoundException;
 import com.taskmanager.model.Task;
 import com.taskmanager.model.TaskStatus;
@@ -9,7 +11,10 @@ import com.taskmanager.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,6 +87,44 @@ public class TaskService {
     @Transactional(readOnly = true)
     public List<String> getAllCategories() {
         return taskRepository.findAllCategories();
+    }
+
+    @Transactional(readOnly = true)
+    public TaskSummaryResponse getTaskSummary() {
+        Map<TaskStatus, Long> tasksByStatus = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus status : TaskStatus.values()) {
+            tasksByStatus.put(status, 0L);
+        }
+
+        for (TaskStatusCount statusCount : taskRepository.countTasksByStatus()) {
+            tasksByStatus.put(statusCount.status(), statusCount.count());
+        }
+
+        long totalTasks = tasksByStatus.values().stream()
+                .mapToLong(Long::longValue)
+                .sum();
+        return new TaskSummaryResponse(totalTasks, tasksByStatus);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getTaskSchema() {
+        Map<String, Object> properties = new LinkedHashMap<>();
+        properties.put("id", Map.of("type", "integer", "format", "int64", "readOnly", true));
+        properties.put("title", Map.of("type", "string", "maxLength", 100));
+        properties.put("description", Map.of("type", List.of("string", "null"), "maxLength", 500));
+        properties.put("status", Map.of(
+                "type", "string",
+                "enum", List.of(TaskStatus.values()).stream().map(Enum::name).toList()));
+        properties.put("dueDate", Map.of("type", List.of("string", "null"), "format", "date-time"));
+        properties.put("category", Map.of("type", List.of("string", "null"), "maxLength", 100));
+
+        Map<String, Object> schema = new LinkedHashMap<>();
+        schema.put("$schema", "https://json-schema.org/draft/2020-12/schema");
+        schema.put("title", "Task");
+        schema.put("type", "object");
+        schema.put("properties", properties);
+        schema.put("required", List.of("title", "status"));
+        return schema;
     }
 
     private TaskResponse toResponse(Task task) {

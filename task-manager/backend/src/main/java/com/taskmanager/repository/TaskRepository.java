@@ -1,5 +1,6 @@
 package com.taskmanager.repository;
 
+import com.taskmanager.dto.TaskStatusCount;
 import com.taskmanager.model.Task;
 import com.taskmanager.model.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT DISTINCT t.category FROM Task t WHERE t.category IS NOT NULL")
     List<String> findAllCategories();
+
+    @Query("SELECT new com.taskmanager.dto.TaskStatusCount(t.status, COUNT(t)) " +
+           "FROM Task t GROUP BY t.status")
+    List<TaskStatusCount> countTasksByStatus();
 }
